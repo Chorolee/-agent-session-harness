@@ -4,6 +4,9 @@ Language: English | [한국어](README.ko.md)
 
 Portable session harness for `claude` and `codex`.
 
+This repository is a portable reference harness, not a drop-in finished product.
+Adapt the included docs, routes, and worker wrappers to your own canonical workspace contract.
+
 ## Why This Exists
 
 Most agent workflows have two failure modes:
@@ -21,6 +24,10 @@ What it does:
 - keeps resume state bounded and metadata-first
 - launches task-bound worker sessions through a binding-first wrapper
 - separates thin head sessions from executable worker continuity
+
+Why binding-first matters:
+- thin or ambiguous session starts should not be treated as executable continuity
+- a worker session should prove task identity before it resumes real implementation work
 
 This export is intentionally genericized for publishing:
 - workspace-specific project names were removed from the top-level docs
@@ -70,6 +77,8 @@ Besides safer worker launch, the harness makes agent runs easier to operate and 
 
 Head session continuation:
 
+Use the head session for planning, review, and routing.
+
 ```bash
 claude
 # or
@@ -77,6 +86,8 @@ codex
 ```
 
 Task-bound worker session via the binding-first wrapper:
+
+Use a worker session when you want task-bound executable continuity instead of loose conversational carry-over.
 
 ```bash
 "$(git rev-parse --show-toplevel)/scripts/start_worker_session" codex task-slug \
@@ -115,3 +126,13 @@ Claude worker session:
 - `start_worker_session` is the low-level safe entrypoint for both Claude and Codex worker sessions.
 - A higher-level UX wrapper such as `scripts/ai_worker` can be added later on top of it.
 - Review and adjust the generic docs before publishing as your own canonical contract.
+
+## What You Still Need To Add
+
+This repository gives you the runtime core, not the final team-specific product.
+
+You will usually still want to add:
+- your own canonical docs and approval flow for `docs_revision`
+- your own workspace routing and task naming conventions
+- a higher-level UX wrapper if you want shorter worker-launch commands
+- your own trigger maps, fixtures, and workspace-specific policy layers

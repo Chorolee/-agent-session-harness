@@ -4,6 +4,9 @@
 
 `claude`와 `codex`를 위한 portable session harness입니다.
 
+이 저장소는 바로 꽂아 쓰는 완제품이라기보다, 다른 워크스페이스에 이식해서 쓰는 portable reference harness에 가깝습니다.
+포함된 문서, 라우팅, worker wrapper는 각자의 canonical workspace contract에 맞게 조정하는 것을 전제로 합니다.
+
 ## 왜 만들었나
 
 대부분의 에이전트 워크플로에는 두 가지 흔한 문제가 있습니다.
@@ -21,6 +24,10 @@
 - bounded, metadata-first resume 상태 유지
 - binding-first wrapper를 통한 task-bound worker session launch
 - 얇은 head session과 executable worker continuity 분리
+
+왜 binding-first가 중요한가:
+- 얇거나 모호한 session start를 executable continuity로 취급하면 안 되기 때문입니다.
+- worker session은 실제 구현 작업을 이어가기 전에 task identity를 먼저 증명해야 하기 때문입니다.
 
 이 공개용 export는 publishing에 맞게 generic하게 정리되어 있습니다.
 - workspace 고유 프로젝트 이름은 top-level 문서에서 제거
@@ -69,6 +76,8 @@
 
 헤드 세션 이어가기:
 
+헤드 세션은 planning, review, routing 같은 판단 작업에 씁니다.
+
 ```bash
 claude
 # 또는
@@ -76,6 +85,8 @@ codex
 ```
 
 binding-first wrapper를 통한 task-bound worker session:
+
+worker 세션은 느슨한 대화 재로딩이 아니라 task-bound executable continuity가 필요할 때 씁니다.
 
 ```bash
 "$(git rev-parse --show-toplevel)/scripts/start_worker_session" codex task-slug \
@@ -114,3 +125,13 @@ Claude worker session:
 - `start_worker_session`은 Claude와 Codex worker session을 위한 저수준 safe entrypoint입니다.
 - 나중에 `scripts/ai_worker` 같은 상위 UX wrapper를 그 위에 추가할 수 있습니다.
 - 자신의 canonical contract로 공개하려면 generic docs를 검토하고 조정하는 것이 좋습니다.
+
+## 아직 직접 추가해야 하는 것
+
+이 저장소는 runtime core를 제공하지만, 팀별 최종 제품까지 대신해 주지는 않습니다.
+
+보통은 여전히 아래를 직접 얹어야 합니다.
+- `docs_revision` 승인 흐름과 canonical docs
+- workspace 라우팅 규칙과 task naming convention
+- 더 짧은 worker launch 명령을 원할 때의 상위 UX wrapper
+- trigger map, fixture, workspace 전용 policy layer
