@@ -10,6 +10,7 @@ bounded resume, task identity, task-bound worker launch에 집중한 작고 audi
 포함된 문서, 라우팅, worker wrapper는 각자의 canonical workspace contract에 맞게 조정하는 것을 전제로 합니다.
 
 공개 launch/resume 계약은 `docs/public-contract.md`에서, 한국어 설명은 `docs/public-contract.ko.md`에서 볼 수 있습니다.
+최소 소비자 workspace 예제는 `examples/sample-consumer/`에서 볼 수 있습니다.
 
 ## 왜 만들었나
 
@@ -142,6 +143,7 @@ Claude worker session:
 - `scripts/ai_worker`
 - `scripts/start_worker_session`
 - `docs/public-contract.md`
+- `examples/sample-consumer/`
 - `.claude/skills/worker-launch/SKILL.md`
 - 최소 generic `AGENTS.md`, `CLAUDE.md`, `AI_INDEX.md`
 - doc-basis validation에 쓰이는 최소 `docs/specs/`, `docs/ops/` scaffold
