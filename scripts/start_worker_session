@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+session_cwd=$(pwd -P)
+
+emit_error() {
+  printf '%s\n' "$1"
+}
+
+show_help() {
+  cat <<'EOF'
+Usage:
+  start_worker_session {claude|codex} task_id [agent_session options] [-- <tool args...>]
+
+Canonical worker/agent launcher for binding-first sessions.
+
+Notes:
+  - Run this wrapper from inside the target git checkout/worktree.
+  - The wrapper sets --session-cwd automatically from the caller cwd.
+  - The wrapper chooses the canonical handoff store automatically.
+  - cross-checkout --worker-cwd is rejected; start from the target checkout instead.
+  - agent_session still requires explicit --docs-revision and approved --doc-basis-path entries.
+  - One-shot commands such as claude -p or codex exec stay on the preflight-only path; they may leave context, but do not count as executable continuity proof.
+  - Downstream codex -C/--cd is unsupported here because the launcher already fixes worker_cwd.
+
+Examples:
+  start_worker_session claude task-slug \
+    --docs-revision <approved-token> \
+    --doc-basis-path docs/specs/project-roadmap/decision-log.md \
+    --doc-basis-path docs/specs/task-spec.md \
+    -- --model claude-sonnet-4-6
+
+  start_worker_session codex task-slug \
+    --docs-source branch-docs-approved \
+    --doc-mode branch-docs-approved \
+    --docs-revision <approved-token> \
+    --doc-basis-path docs/specs/project-roadmap/decision-log.md \
+    --doc-basis-path docs/specs/task-spec.md \
+    -- --model gpt-5.4
+EOF
+}
+
+normalize_path() {
+  python3 - "$session_cwd" "$1" <<'PY'
+import os
+import sys
+
+base = sys.argv[1]
+value = sys.argv[2]
+candidate = value if os.path.isabs(value) else os.path.join(base, value)
+print(os.path.realpath(candidate))
+PY
+}
+
+for arg in "$@"; do
+  case "$arg" in
+    --)
+      break
+      ;;
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+  esac
+done
+
+if ! repo_root=$(git -C "$session_cwd" rev-parse --show-toplevel 2>/dev/null); then
+  emit_error '{"status":"error","error":"start_worker_session must run inside a git checkout"}'
+  exit 127
+fi
+
+worker_cwd=""
+forwarded_args=()
+args=("$@")
+for ((i=0; i<${#args[@]}; )); do
+  arg=${args[$i]}
+  case "$arg" in
+    --)
+      forwarded_args+=("$arg")
+      for ((j=i + 1; j<${#args[@]}; j++)); do
+        forwarded_args+=("${args[$j]}")
+      done
+      break
+      ;;
+    --session-cwd)
+      emit_error '{"status":"error","error":"start_worker_session manages --session-cwd automatically"}'
+      exit 1
+      ;;
+    --session-cwd=*)
+      emit_error '{"status":"error","error":"start_worker_session manages --session-cwd automatically"}'
+      exit 1
+      ;;
+    --handoff-dir)
+      emit_error '{"status":"error","error":"start_worker_session manages handoff storage automatically"}'
+      exit 1
+      ;;
+    --handoff-dir=*)
+      emit_error '{"status":"error","error":"start_worker_session manages handoff storage automatically"}'
+      exit 1
+      ;;
+    --worker-cwd)
+      if (( i + 1 < ${#args[@]} )); then
+        worker_cwd=$(normalize_path "${args[$((i + 1))]}")
+        forwarded_args+=("$arg" "$worker_cwd")
+      fi
+      ((i+=2))
+      ;;
+    --worker-cwd=*)
+      worker_cwd=$(normalize_path "${arg#--worker-cwd=}")
+      forwarded_args+=("--worker-cwd=$worker_cwd")
+      ((i+=1))
+      ;;
+    --worktree-cwd)
+      if (( i + 1 < ${#args[@]} )); then
+        forwarded_args+=("$arg" "$(normalize_path "${args[$((i + 1))]}")")
+      fi
+      ((i+=2))
+      ;;
+    --worktree-cwd=*)
+      forwarded_args+=("--worktree-cwd=$(normalize_path "${arg#--worktree-cwd=}")")
+      ((i+=1))
+      ;;
+    *)
+      forwarded_args+=("$arg")
+      ((i+=1))
+      ;;
+  esac
+done
+
+if [[ -n "$worker_cwd" ]]; then
+  if ! worker_repo_root=$(git -C "$worker_cwd" rev-parse --show-toplevel 2>/dev/null); then
+    emit_error "{\"status\":\"error\",\"error\":\"worker_cwd is not inside a git checkout: $worker_cwd\"}"
+    exit 1
+  fi
+  if [[ $(cd "$worker_repo_root" && pwd -P) != "$repo_root" ]]; then
+    emit_error '{"status":"error","error":"cross-checkout --worker-cwd requires running start_worker_session from the target checkout"}'
+    exit 1
+  fi
+fi
+
+cd "$repo_root"
+exec python3 -m tools.harness.agent_session --session-cwd "$session_cwd" "${forwarded_args[@]}"

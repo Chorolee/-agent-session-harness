@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -euo pipefail
+echo "Portable harness pre-commit placeholder. Replace with your repo-specific checks."

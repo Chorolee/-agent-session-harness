@@ -1,0 +1,11 @@
+projects:
+  project-a:
+    schema:
+      - "project-a/db/**/*.sql"
+    public_api:
+      - "project-a/src/api/**"
+    workers:
+      - "project-a/workers/**"
+  project-b:
+    public_api:
+      - "project-b/src/api/**"
