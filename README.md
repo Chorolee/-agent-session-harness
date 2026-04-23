@@ -27,7 +27,7 @@ The runtime itself is not Claude-only: Codex uses the same Python and shell entr
 Head session:
 
 ```bash
-claude
+claude / codex
 ```
 
 Task-bound worker session:
