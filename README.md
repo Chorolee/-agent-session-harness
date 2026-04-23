@@ -10,6 +10,8 @@ This repository is a portable reference harness, not a drop-in finished product.
 Adapt the included docs, routes, and worker wrappers to your own canonical workspace contract.
 
 See `docs/public-contract.md` for the public launch and resume contract.
+See `docs/adoption-guide.md` for the minimum adoption path.
+See `docs/compatibility.md` for the current public alpha compatibility surface.
 See `examples/sample-consumer/` for a minimal consumer workspace layout.
 
 ## Why This Exists
@@ -144,6 +146,8 @@ Claude worker session:
 - `scripts/ai_worker`
 - `scripts/start_worker_session`
 - `docs/public-contract.md`
+- `docs/adoption-guide.md`
+- `docs/compatibility.md`
 - `examples/sample-consumer/`
 - `.claude/skills/worker-launch/SKILL.md`
 - minimal generic `AGENTS.md`, `CLAUDE.md`, `AI_INDEX.md`
