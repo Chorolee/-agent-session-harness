@@ -4,10 +4,41 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.harness import session_identity
+from tools.harness import dispatch, handoff, session_identity
 
 
 class SessionIdentityTests(unittest.TestCase):
+    def test_thin_v2_session_start_does_not_block_context_output(self) -> None:
+        event = {
+            "hook_event": "SessionStart",
+            "facts": {
+                "producer_schema_version": 2,
+                "identity_validation_status": "incomplete",
+            },
+        }
+
+        self.assertFalse(handoff.session_start_requires_identity_block(event))
+
+    def test_thin_launch_downgrades_resume_to_preflight(self) -> None:
+        resume = {
+            "resume_mode": "resume-executable",
+            "can_auto_resume": True,
+            "can_execute_worker": True,
+            "warnings": [],
+            "rendered_context": "stale executable render",
+        }
+
+        adjusted = dispatch._resume_for_current_launch(
+            {"facts": {"producer_schema_version": 2}},
+            resume,
+        )
+
+        self.assertEqual(adjusted["resume_mode"], "resume-preflight")
+        self.assertFalse(adjusted["can_auto_resume"])
+        self.assertFalse(adjusted["can_execute_worker"])
+        self.assertEqual(adjusted["rendered_context"], "")
+        self.assertIn("thin_session_preflight_only", adjusted["warnings"])
+
     def test_doc_basis_revision_changes_when_approved_doc_changes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)

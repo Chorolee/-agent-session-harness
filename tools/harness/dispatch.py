@@ -319,18 +319,32 @@ def _load_resume_cache(handoff_dir: Path, project_key: str) -> dict | None:
 
 def _resume_for_current_launch(event: dict, resume: dict) -> dict:
     facts = event.get("facts") or {}
+    if not _current_launch_has_identity_metadata(facts):
+        return _preflight_resume(resume, "thin_session_preflight_only")
     if (
         facts.get("identity_source") != "binding"
         or facts.get("binding_launch_mode") not in {"one-shot", "manual"}
     ):
         return resume
-    adjusted = dict(resume)
-    warnings = list(adjusted.get("warnings") or [])
     warning = (
         "manual_bind_preflight_only"
         if facts.get("binding_launch_mode") == "manual"
         else "one_shot_preflight_only"
     )
+    return _preflight_resume(resume, warning)
+
+
+def _current_launch_has_identity_metadata(facts: dict) -> bool:
+    for field in handoff._IDENTITY_METADATA_FIELDS:
+        value = facts.get(field)
+        if value not in (None, "", []):
+            return True
+    return False
+
+
+def _preflight_resume(resume: dict, warning: str) -> dict:
+    adjusted = dict(resume)
+    warnings = list(adjusted.get("warnings") or [])
     if warning not in warnings:
         warnings.append(warning)
     adjusted["resume_mode"] = "resume-preflight"

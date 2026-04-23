@@ -363,11 +363,21 @@ def session_start_requires_identity_block(event: dict[str, Any]) -> bool:
         or schema_version < EXECUTABLE_RESUME_MIN_PRODUCER_SCHEMA_VERSION
     ):
         return False
+    if not _has_any_identity_metadata(facts):
+        return False
     if facts.get("identity_validation_status") != "validated":
         return True
     if facts.get("binding_launch_mode") in {"one-shot", "manual"}:
         return False
     return facts.get("identity_acknowledged") is not True
+
+
+def _has_any_identity_metadata(facts: dict[str, Any]) -> bool:
+    for field in _IDENTITY_METADATA_FIELDS:
+        value = facts.get(field)
+        if value not in (None, "", []):
+            return True
+    return False
 
 
 def stamp_session_start_identity_validation(event: dict[str, Any]) -> None:
