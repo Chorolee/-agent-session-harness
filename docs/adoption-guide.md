@@ -39,6 +39,8 @@ Bring these paths into your target repository:
 - `AGENTS.md`
 - `AI_INDEX.md`
 - `docs/public-contract.md`
+- `docs/release-model.md`
+- `docs/migration-guide.md`
 - minimal `docs/specs/` and `docs/ops/` scaffolding as needed
 
 The harness is designed to be portable.
@@ -53,7 +55,7 @@ scripts/bootstrap_consumer --target ../my-repo --copy-runtime
 That path copies:
 - the minimal consumer scaffolding
 - the portable runtime
-- the public contract docs
+- the public contract and beta release docs
 - the optional Claude worker-launch skill directory
 
 ## 3. Establish Canonical Docs

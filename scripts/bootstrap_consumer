@@ -130,6 +130,10 @@ if [[ "$copy_runtime" == "true" ]]; then
   copy_path "$source_root/scripts/start_worker_session" "scripts/start_worker_session"
   copy_path "$source_root/docs/public-contract.md" "docs/public-contract.md"
   copy_path "$source_root/docs/public-contract.ko.md" "docs/public-contract.ko.md"
+  copy_path "$source_root/docs/release-model.md" "docs/release-model.md"
+  copy_path "$source_root/docs/release-model.ko.md" "docs/release-model.ko.md"
+  copy_path "$source_root/docs/migration-guide.md" "docs/migration-guide.md"
+  copy_path "$source_root/docs/migration-guide.ko.md" "docs/migration-guide.ko.md"
   copy_path "$source_root/docs/ops" "docs/ops"
   copy_path "$source_root/.claude/skills/worker-launch" ".claude/skills/worker-launch"
 fi

@@ -4,6 +4,13 @@ All notable changes to this repository will be documented in this file.
 
 The public release tags are the source of truth for runtime milestones.
 
+## [0.1.0-beta2] - 2026-04-24
+
+### Fixed
+- aligned `scripts/bootstrap_consumer --copy-runtime` with the documented beta surface
+- copied `docs/release-model*` and `docs/migration-guide*` into bootstrapped consumer repos
+- added CI coverage for those beta document paths
+
 ## [0.1.0-beta1] - 2026-04-24
 
 ### Added

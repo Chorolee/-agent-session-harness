@@ -42,6 +42,8 @@ jobs:
           test -f "$tmpdir/scripts/ai_worker"
           test -f "$tmpdir/scripts/start_worker_session"
           test -f "$tmpdir/docs/public-contract.md"
+          test -f "$tmpdir/docs/release-model.md"
+          test -f "$tmpdir/docs/migration-guide.md"
           (
             cd "$tmpdir"
             ./scripts/ai_worker --help >/dev/null
