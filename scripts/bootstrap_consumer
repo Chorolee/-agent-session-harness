@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+show_help() {
+  cat <<'EOF'
+Usage:
+  scripts/bootstrap_consumer [--target DIR] [--copy-runtime] [--force] [--print-plan]
+
+Bootstrap the minimum consumer workspace shape for agent-session-harness.
+
+Default behavior:
+  - create the minimal consumer docs and routing files in the target repo
+  - do not overwrite existing files unless --force is given
+
+Options:
+  --target DIR      Target repo root. Defaults to the current git top-level or cwd.
+  --copy-runtime    Also copy the portable runtime paths into the target repo.
+  --force           Overwrite target paths managed by this bootstrap.
+  --print-plan      Print what would be copied without changing files.
+  -h, --help        Show this help.
+
+Examples:
+  scripts/bootstrap_consumer
+  scripts/bootstrap_consumer --target ../my-repo
+  scripts/bootstrap_consumer --target ../my-repo --copy-runtime
+EOF
+}
+
+emit_error() {
+  printf '%s\n' "$1" >&2
+}
+
+default_target_dir() {
+  if git -C "$PWD" rev-parse --show-toplevel >/dev/null 2>&1; then
+    git -C "$PWD" rev-parse --show-toplevel
+  else
+    pwd -P
+  fi
+}
+
+copy_path() {
+  local source_path="$1"
+  local relative_target="$2"
+  local destination_path="$target_dir/$relative_target"
+
+  if [[ -e "$destination_path" && "$force" != "true" ]]; then
+    printf 'skip %s\n' "$relative_target"
+    return
+  fi
+
+  printf '%s %s\n' "$([[ -e "$destination_path" ]] && printf 'overwrite' || printf 'create')" "$relative_target"
+  if [[ "$print_plan" == "true" ]]; then
+    return
+  fi
+
+  mkdir -p "$(dirname "$destination_path")"
+  if [[ -d "$source_path" ]]; then
+    if [[ -e "$destination_path" ]]; then
+      rm -rf "$destination_path"
+    fi
+    cp -R "$source_path" "$destination_path"
+  else
+    cp "$source_path" "$destination_path"
+  fi
+}
+
+source_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+target_dir=""
+copy_runtime="false"
+force="false"
+print_plan="false"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --target)
+      target_dir="${2:-}"
+      shift 2
+      ;;
+    --copy-runtime)
+      copy_runtime="true"
+      shift
+      ;;
+    --force)
+      force="true"
+      shift
+      ;;
+    --print-plan)
+      print_plan="true"
+      shift
+      ;;
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+    *)
+      emit_error "unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$target_dir" ]]; then
+  target_dir="$(default_target_dir)"
+fi
+
+target_dir=$(cd "$target_dir" 2>/dev/null && pwd -P || true)
+if [[ -z "$target_dir" ]]; then
+  emit_error "target directory does not exist"
+  exit 1
+fi
+
+sample_root="$source_root/examples/sample-consumer"
+if [[ ! -d "$sample_root" ]]; then
+  emit_error "sample-consumer template directory is missing"
+  exit 1
+fi
+
+printf 'bootstrap target: %s\n' "$target_dir"
+printf 'copy runtime: %s\n' "$copy_runtime"
+
+copy_path "$sample_root/AGENTS.md" "AGENTS.md"
+copy_path "$sample_root/AI_INDEX.md" "AI_INDEX.md"
+copy_path "$sample_root/docs/specs/project-roadmap/decision-log.md" "docs/specs/project-roadmap/decision-log.md"
+copy_path "$sample_root/docs/specs/task-spec.md" "docs/specs/task-spec.md"
+
+if [[ "$copy_runtime" == "true" ]]; then
+  copy_path "$source_root/tools/harness" "tools/harness"
+  copy_path "$source_root/scripts/ai_worker" "scripts/ai_worker"
+  copy_path "$source_root/scripts/start_worker_session" "scripts/start_worker_session"
+  copy_path "$source_root/docs/public-contract.md" "docs/public-contract.md"
+  copy_path "$source_root/docs/public-contract.ko.md" "docs/public-contract.ko.md"
+  copy_path "$source_root/docs/ops" "docs/ops"
+  copy_path "$source_root/.claude/skills/worker-launch" ".claude/skills/worker-launch"
+fi
+
+if [[ "$print_plan" == "true" ]]; then
+  exit 0
+fi
+
+if [[ "$copy_runtime" != "true" ]]; then
+  missing_runtime=()
+  for required_path in "tools/harness" "scripts/ai_worker" "scripts/start_worker_session"; do
+    if [[ ! -e "$target_dir/$required_path" ]]; then
+      missing_runtime+=("$required_path")
+    fi
+  done
+  if [[ ${#missing_runtime[@]} -gt 0 ]]; then
+    printf '\nwarning: runtime paths are still missing in target:\n' >&2
+    for required_path in "${missing_runtime[@]}"; do
+      printf '  - %s\n' "$required_path" >&2
+    done
+    printf 'Run again with --copy-runtime or vendor the runtime paths manually.\n' >&2
+  fi
+fi
+
+printf '\nnext steps:\n'
+printf '  - review docs/public-contract.md in the target repo\n'
+printf '  - update docs/specs/project-roadmap/decision-log.md and docs/specs/task-spec.md\n'
+printf '  - run scripts/ai_worker --help in the target repo\n'

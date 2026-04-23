@@ -26,7 +26,23 @@ jobs:
         run: |
           scripts/start_worker_session --help
           scripts/ai_worker --help
+          scripts/bootstrap_consumer --help
 
       - name: Verify ergonomic wrapper smoke path
         run: |
           scripts/ai_worker codex docs/specs/task-spec.md --print-command -- --model gpt-5.4
+
+      - name: Verify bootstrap consumer path
+        run: |
+          tmpdir="$(mktemp -d)"
+          git init "$tmpdir"
+          scripts/bootstrap_consumer --target "$tmpdir" --copy-runtime
+          test -f "$tmpdir/AGENTS.md"
+          test -f "$tmpdir/scripts/ai_worker"
+          test -f "$tmpdir/scripts/start_worker_session"
+          test -f "$tmpdir/docs/public-contract.md"
+          (
+            cd "$tmpdir"
+            ./scripts/ai_worker --help >/dev/null
+            ./scripts/start_worker_session --help >/dev/null
+          )

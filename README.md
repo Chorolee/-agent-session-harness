@@ -106,6 +106,12 @@ Thin ergonomic wrapper:
 scripts/ai_worker codex docs/specs/task-spec.md -- --model gpt-5.4
 ```
 
+Bootstrap a minimal consumer repo:
+
+```bash
+scripts/bootstrap_consumer --target ../my-repo --copy-runtime
+```
+
 Low-level binding-first wrapper:
 
 Head session continuation:
@@ -144,6 +150,7 @@ Claude worker session:
 
 - `tools/harness/`
 - `scripts/ai_worker`
+- `scripts/bootstrap_consumer`
 - `scripts/start_worker_session`
 - `docs/public-contract.md`
 - `docs/adoption-guide.md`
@@ -163,6 +170,7 @@ Claude worker session:
 
 - `start_worker_session` is the low-level safe entrypoint for both Claude and Codex worker sessions.
 - `ai_worker` is a thin convenience wrapper that derives task id and docs revision for a spec-driven launch.
+- `bootstrap_consumer` can scaffold a minimal consumer workspace and optionally copy the runtime into another repo.
 - Review and adjust the generic docs before publishing as your own canonical contract.
 
 ## What You Still Need To Add

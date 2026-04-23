@@ -105,6 +105,12 @@ bounded resume, task identity, task-bound worker launch에 집중한 작고 audi
 scripts/ai_worker codex docs/specs/task-spec.md -- --model gpt-5.4
 ```
 
+최소 consumer repo bootstrap:
+
+```bash
+scripts/bootstrap_consumer --target ../my-repo --copy-runtime
+```
+
 저수준 binding-first wrapper:
 
 헤드 세션 이어가기:
@@ -143,6 +149,7 @@ Claude worker session:
 
 - `tools/harness/`
 - `scripts/ai_worker`
+- `scripts/bootstrap_consumer`
 - `scripts/start_worker_session`
 - `docs/public-contract.md`
 - `docs/adoption-guide.md`
@@ -162,6 +169,7 @@ Claude worker session:
 
 - `start_worker_session`은 Claude와 Codex worker session을 위한 저수준 safe entrypoint입니다.
 - `ai_worker`는 spec 기반 launch에서 task id와 docs revision을 자동으로 채워 주는 얇은 convenience wrapper입니다.
+- `bootstrap_consumer`는 최소 consumer workspace를 만들고, 원하면 다른 repo로 runtime까지 같이 복사할 수 있습니다.
 - 자신의 canonical contract로 공개하려면 generic docs를 검토하고 조정하는 것이 좋습니다.
 
 ## 아직 직접 추가해야 하는 것

@@ -44,6 +44,18 @@ Bring these paths into your target repository:
 The harness is designed to be portable.
 It does not require a large external service, but it does assume repo-local docs and worker-launch wrappers exist.
 
+If you want a single bootstrap step, use:
+
+```bash
+scripts/bootstrap_consumer --target ../my-repo --copy-runtime
+```
+
+That path copies:
+- the minimal consumer scaffolding
+- the portable runtime
+- the public contract docs
+- the optional Claude worker-launch skill directory
+
 ## 3. Establish Canonical Docs
 
 For a basic adoption, define at least:
@@ -107,6 +119,7 @@ It does not replace your workspace governance.
 ## 7. Verify The Minimal Paths
 
 After adoption, verify at least:
+- `scripts/bootstrap_consumer --help`
 - `scripts/start_worker_session --help`
 - `scripts/ai_worker --help`
 - `scripts/ai_worker codex docs/specs/task-spec.md --print-command -- --model gpt-5.4`
