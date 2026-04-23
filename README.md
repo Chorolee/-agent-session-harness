@@ -6,12 +6,14 @@ Binding-first session runtime for safe worker continuity in Claude/Codex workflo
 
 A small, auditable reference harness for bounded resume, task identity, and task-bound worker launch.
 
-This repository is a portable reference harness, not a drop-in finished product.
+This repository is a portable beta reference harness, not a drop-in finished product.
 Adapt the included docs, routes, and worker wrappers to your own canonical workspace contract.
 
 See `docs/public-contract.md` for the public launch and resume contract.
 See `docs/adoption-guide.md` for the minimum adoption path.
-See `docs/compatibility.md` for the current public alpha compatibility surface.
+See `docs/compatibility.md` for the current public beta compatibility surface.
+See `docs/release-model.md` for beta-stage release expectations.
+See `docs/migration-guide.md` for alpha-to-beta upgrade guidance.
 See `examples/sample-consumer/` for a minimal consumer workspace layout.
 
 ## Why This Exists
@@ -171,6 +173,7 @@ Claude worker session:
 - `start_worker_session` is the low-level safe entrypoint for both Claude and Codex worker sessions.
 - `ai_worker` is a thin convenience wrapper that derives task id and docs revision for a spec-driven launch.
 - `bootstrap_consumer` can scaffold a minimal consumer workspace and optionally copy the runtime into another repo.
+- public tags and `CHANGELOG.md` are the supported upgrade path during beta
 - Review and adjust the generic docs before publishing as your own canonical contract.
 
 ## What You Still Need To Add

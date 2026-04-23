@@ -1,6 +1,6 @@
 # Compatibility Matrix
 
-This document describes the intended compatibility surface of the public alpha.
+This document describes the intended compatibility surface of the public beta.
 
 It is not a guarantee that every downstream environment behaves identically.
 It is the current support contract for the runtime model exposed by this repository.
@@ -39,16 +39,16 @@ It is the current support contract for the runtime model exposed by this reposit
 | head session continuation in repo root | supported as thin path |
 | worker launch with explicit doc basis | supported |
 
-## Public Alpha Notes
+## Public Beta Notes
 
-Current public alpha assumptions:
+Current public beta assumptions:
 - runtime supports both `claude` and `codex`
 - the ergonomic wrapper is `scripts/ai_worker`
 - the lower-level binding-first launcher is `scripts/start_worker_session`
+- `scripts/bootstrap_consumer --copy-runtime` is the minimum supported bootstrap path
 - executable continuity remains narrower than conversational continuity
 
 What is intentionally outside the current compatibility promise:
-- full install/bootstrap automation
 - vendor-agnostic support for arbitrary third-party CLIs
 - a dashboard or UI session browser
 - workspace-specific trigger packs

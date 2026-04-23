@@ -6,12 +6,14 @@ Claude/Codex 워크플로에서 안전한 worker continuity를 위한 binding-fi
 
 bounded resume, task identity, task-bound worker launch에 집중한 작고 audit-friendly한 reference harness입니다.
 
-이 저장소는 바로 꽂아 쓰는 완제품이라기보다, 다른 워크스페이스에 이식해서 쓰는 portable reference harness에 가깝습니다.
+이 저장소는 바로 꽂아 쓰는 완제품이라기보다, 다른 워크스페이스에 이식해서 쓰는 portable beta reference harness에 가깝습니다.
 포함된 문서, 라우팅, worker wrapper는 각자의 canonical workspace contract에 맞게 조정하는 것을 전제로 합니다.
 
 공개 launch/resume 계약은 `docs/public-contract.md`에서, 한국어 설명은 `docs/public-contract.ko.md`에서 볼 수 있습니다.
 최소 채택 경로는 `docs/adoption-guide.md`에서 볼 수 있습니다.
-현재 public alpha 호환 범위는 `docs/compatibility.md`에서 볼 수 있습니다.
+현재 public beta 호환 범위는 `docs/compatibility.md`에서 볼 수 있습니다.
+beta 단계 릴리즈 기대치는 `docs/release-model.md`와 `docs/release-model.ko.md`에서 볼 수 있습니다.
+alpha에서 beta로 올리는 방법은 `docs/migration-guide.md`와 `docs/migration-guide.ko.md`에서 볼 수 있습니다.
 최소 소비자 workspace 예제는 `examples/sample-consumer/`에서 볼 수 있습니다.
 
 ## 왜 만들었나
@@ -170,6 +172,7 @@ Claude worker session:
 - `start_worker_session`은 Claude와 Codex worker session을 위한 저수준 safe entrypoint입니다.
 - `ai_worker`는 spec 기반 launch에서 task id와 docs revision을 자동으로 채워 주는 얇은 convenience wrapper입니다.
 - `bootstrap_consumer`는 최소 consumer workspace를 만들고, 원하면 다른 repo로 runtime까지 같이 복사할 수 있습니다.
+- beta 동안에는 public tag와 `CHANGELOG.md`를 업그레이드 기준으로 보는 것이 맞습니다.
 - 자신의 canonical contract로 공개하려면 generic docs를 검토하고 조정하는 것이 좋습니다.
 
 ## 아직 직접 추가해야 하는 것
