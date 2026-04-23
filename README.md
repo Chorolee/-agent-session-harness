@@ -9,6 +9,8 @@ A small, auditable reference harness for bounded resume, task identity, and task
 This repository is a portable reference harness, not a drop-in finished product.
 Adapt the included docs, routes, and worker wrappers to your own canonical workspace contract.
 
+See `docs/public-contract.md` for the public launch and resume contract.
+
 ## Why This Exists
 
 Most agent workflows are good at carrying forward conversation, but weak at proving executable continuity.
@@ -131,6 +133,7 @@ Claude worker session:
 
 - `tools/harness/`
 - `scripts/start_worker_session`
+- `docs/public-contract.md`
 - `.claude/skills/worker-launch/SKILL.md`
 - minimal generic `AGENTS.md`, `CLAUDE.md`, `AI_INDEX.md`
 - minimal `docs/specs/` and `docs/ops/` scaffolding used by doc-basis validation

@@ -9,6 +9,8 @@ bounded resume, task identity, task-bound worker launch에 집중한 작고 audi
 이 저장소는 바로 꽂아 쓰는 완제품이라기보다, 다른 워크스페이스에 이식해서 쓰는 portable reference harness에 가깝습니다.
 포함된 문서, 라우팅, worker wrapper는 각자의 canonical workspace contract에 맞게 조정하는 것을 전제로 합니다.
 
+공개 launch/resume 계약은 `docs/public-contract.md`에서 봐야 합니다.
+
 ## 왜 만들었나
 
 대부분의 에이전트 워크플로는 대화를 이어 붙이는 데는 강하지만, executable continuity를 증명하는 데는 약합니다.
@@ -130,6 +132,7 @@ Claude worker session:
 
 - `tools/harness/`
 - `scripts/start_worker_session`
+- `docs/public-contract.md`
 - `.claude/skills/worker-launch/SKILL.md`
 - 최소 generic `AGENTS.md`, `CLAUDE.md`, `AI_INDEX.md`
 - doc-basis validation에 쓰이는 최소 `docs/specs/`, `docs/ops/` scaffold

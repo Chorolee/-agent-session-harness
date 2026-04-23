@@ -7,4 +7,4 @@ Core rules:
 - keep head sessions thin unless a task-bound worker is required
 - use `scripts/start_worker_session` for executable worker continuity
 - treat `AI_INDEX.md` as routing-only
-- keep durable policy in `AGENTS.md`, `docs/specs/`, and `docs/ops/`
+- keep durable policy in `AGENTS.md`, `docs/public-contract.md`, `docs/specs/`, and `docs/ops/`
