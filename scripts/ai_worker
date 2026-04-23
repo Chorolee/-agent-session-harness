@@ -47,14 +47,26 @@ normalize_segment() {
 }
 
 to_repo_relative_path() {
-  python3 - "$repo_root" "$1" <<'PY'
+  python3 - "$repo_root" "$PWD" "$1" <<'PY'
 import sys
 from pathlib import Path
 
 repo_root = Path(sys.argv[1]).resolve()
-value = Path(sys.argv[2])
-candidate = value if value.is_absolute() else (Path.cwd() / value)
-resolved = candidate.resolve()
+cwd = Path(sys.argv[2]).resolve()
+value = Path(sys.argv[3])
+
+if value.is_absolute():
+    resolved = value.resolve()
+else:
+    repo_candidate = (repo_root / value).resolve()
+    cwd_candidate = (cwd / value).resolve()
+    if repo_candidate.exists():
+        resolved = repo_candidate
+    elif cwd_candidate.exists():
+        resolved = cwd_candidate
+    else:
+        resolved = repo_candidate
+
 try:
     relative = resolved.relative_to(repo_root)
 except ValueError as exc:

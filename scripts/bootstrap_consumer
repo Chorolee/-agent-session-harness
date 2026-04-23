@@ -58,7 +58,8 @@ copy_path() {
     if [[ -e "$destination_path" ]]; then
       rm -rf "$destination_path"
     fi
-    cp -R "$source_path" "$destination_path"
+    mkdir -p "$destination_path"
+    cp -R "$source_path"/. "$destination_path"
   else
     cp "$source_path" "$destination_path"
   fi
