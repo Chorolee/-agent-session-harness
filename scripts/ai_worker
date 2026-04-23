@@ -1,0 +1,228 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+show_help() {
+  cat <<'EOF'
+Usage:
+  ai_worker {claude|codex} spec_path [options] [-- <tool args...>]
+
+Ergonomic wrapper around scripts/start_worker_session.
+
+What it does automatically:
+  - derives task_id from the spec filename unless --task-id is given
+  - adds the default decision-log doc basis path
+  - computes docs_revision from the current approved doc basis
+  - launches the low-level binding-first worker wrapper
+
+Options:
+  --task-id TASK_ID           Override the derived task id
+  --docs-source VALUE         root-canonical | branch-docs-approved
+  --doc-mode VALUE            root-canonical | branch-docs-approved
+  --decision-log-path PATH    Override the default decision-log path
+  --doc-basis-path PATH       Add one more approved doc-basis path
+  --print-command             Print the final start_worker_session command and exit
+  -h, --help                  Show this help
+
+Examples:
+  scripts/ai_worker codex docs/specs/task-spec.md -- --model gpt-5.4
+  scripts/ai_worker claude docs/specs/task-spec.md -- --model claude-sonnet-4-6
+  scripts/ai_worker codex docs/specs/task-spec.md \
+    --doc-basis-path docs/specs/extra-context.md \
+    -- --model gpt-5.4
+EOF
+}
+
+emit_error() {
+  printf '%s\n' "$1" >&2
+}
+
+normalize_segment() {
+  local value="$1"
+  value=$(printf '%s' "$value" | tr '[:upper:]' '[:lower:]')
+  value=$(printf '%s' "$value" | sed -E 's/[^a-z0-9._-]+/-/g; s/^-+//; s/-+$//')
+  if [[ -z "$value" ]]; then
+    value="task"
+  fi
+  printf '%s\n' "$value"
+}
+
+to_repo_relative_path() {
+  python3 - "$repo_root" "$1" <<'PY'
+import sys
+from pathlib import Path
+
+repo_root = Path(sys.argv[1]).resolve()
+value = Path(sys.argv[2])
+candidate = value if value.is_absolute() else (Path.cwd() / value)
+resolved = candidate.resolve()
+try:
+    relative = resolved.relative_to(repo_root)
+except ValueError as exc:
+    raise SystemExit(f"path must stay within the current repo: {resolved}") from exc
+print(relative.as_posix())
+PY
+}
+
+compute_docs_revision() {
+  python3 - "$repo_root" "$docs_source" "$doc_mode" "${doc_basis_paths[@]}" <<'PY'
+import sys
+from pathlib import Path
+
+repo_root = Path(sys.argv[1]).resolve()
+docs_source = sys.argv[2]
+doc_mode = sys.argv[3]
+doc_basis_paths = sys.argv[4:]
+
+sys.path.insert(0, str(repo_root))
+from tools.harness import session_identity
+
+print(
+    session_identity.resolve_verified_docs_revision(
+        worker_cwd=str(repo_root),
+        docs_source=docs_source,
+        doc_mode=doc_mode,
+        doc_basis_paths=doc_basis_paths,
+    )
+)
+PY
+}
+
+if [[ $# -eq 0 ]]; then
+  show_help
+  exit 1
+fi
+
+case "${1:-}" in
+  -h|--help)
+    show_help
+    exit 0
+    ;;
+esac
+
+tool="${1:-}"
+shift
+
+if [[ "$tool" != "claude" && "$tool" != "codex" ]]; then
+  emit_error "ai_worker requires {claude|codex} as the first argument"
+  exit 1
+fi
+
+if [[ $# -eq 0 ]]; then
+  emit_error "ai_worker requires a spec_path"
+  exit 1
+fi
+
+spec_path_input="${1:-}"
+shift
+
+task_id=""
+docs_source="root-canonical"
+doc_mode="root-canonical"
+decision_log_path="docs/specs/project-roadmap/decision-log.md"
+print_command="false"
+extra_doc_basis_paths=()
+tool_args=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --)
+      shift
+      tool_args=("$@")
+      break
+      ;;
+    --task-id)
+      task_id="${2:-}"
+      shift 2
+      ;;
+    --docs-source)
+      docs_source="${2:-}"
+      shift 2
+      ;;
+    --doc-mode)
+      doc_mode="${2:-}"
+      shift 2
+      ;;
+    --decision-log-path)
+      decision_log_path="${2:-}"
+      shift 2
+      ;;
+    --doc-basis-path)
+      extra_doc_basis_paths+=("${2:-}")
+      shift 2
+      ;;
+    --print-command)
+      print_command="true"
+      shift
+      ;;
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+    *)
+      emit_error "unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
+
+if ! repo_root=$(git rev-parse --show-toplevel 2>/dev/null); then
+  emit_error "ai_worker must run inside a git checkout"
+  exit 127
+fi
+
+repo_root=$(cd "$repo_root" && pwd -P)
+
+spec_path=$(to_repo_relative_path "$spec_path_input")
+decision_log_path=$(to_repo_relative_path "$decision_log_path")
+
+if [[ ! -f "$repo_root/$spec_path" ]]; then
+  emit_error "spec path does not exist: $spec_path"
+  exit 1
+fi
+
+if [[ ! -f "$repo_root/$decision_log_path" ]]; then
+  emit_error "decision-log path does not exist: $decision_log_path"
+  exit 1
+fi
+
+doc_basis_paths=("$decision_log_path" "$spec_path")
+for path_value in "${extra_doc_basis_paths[@]}"; do
+  relative_path=$(to_repo_relative_path "$path_value")
+  if [[ ! -f "$repo_root/$relative_path" ]]; then
+    emit_error "doc-basis path does not exist: $relative_path"
+    exit 1
+  fi
+  doc_basis_paths+=("$relative_path")
+done
+
+if [[ -z "$task_id" ]]; then
+  task_id=$(normalize_segment "$(basename "$spec_path" | sed -E 's/\.[^.]+$//')")
+fi
+
+if [[ "$docs_source" != "root-canonical" && "$docs_source" != "branch-docs-approved" ]]; then
+  emit_error "--docs-source must be root-canonical or branch-docs-approved"
+  exit 1
+fi
+
+if [[ "$doc_mode" != "root-canonical" && "$doc_mode" != "branch-docs-approved" ]]; then
+  emit_error "--doc-mode must be root-canonical or branch-docs-approved"
+  exit 1
+fi
+
+docs_revision=$(compute_docs_revision)
+
+cmd=("$repo_root/scripts/start_worker_session" "$tool" "$task_id" "--docs-source" "$docs_source" "--doc-mode" "$doc_mode" "--docs-revision" "$docs_revision")
+for path_value in "${doc_basis_paths[@]}"; do
+  cmd+=("--doc-basis-path" "$path_value")
+done
+if [[ ${#tool_args[@]} -gt 0 ]]; then
+  cmd+=("--" "${tool_args[@]}")
+fi
+
+if [[ "$print_command" == "true" ]]; then
+  printf '%q ' "${cmd[@]}"
+  printf '\n'
+  exit 0
+fi
+
+exec "${cmd[@]}"

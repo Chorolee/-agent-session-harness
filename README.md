@@ -97,6 +97,14 @@ Besides safer worker launch, the harness makes agent runs easier to operate and 
 
 ## Quick Start
 
+Thin ergonomic wrapper:
+
+```bash
+scripts/ai_worker codex docs/specs/task-spec.md -- --model gpt-5.4
+```
+
+Low-level binding-first wrapper:
+
 Head session continuation:
 
 Use the head session for planning, review, and routing.
@@ -132,6 +140,7 @@ Claude worker session:
 ## Included
 
 - `tools/harness/`
+- `scripts/ai_worker`
 - `scripts/start_worker_session`
 - `docs/public-contract.md`
 - `.claude/skills/worker-launch/SKILL.md`
@@ -147,7 +156,7 @@ Claude worker session:
 ## Notes
 
 - `start_worker_session` is the low-level safe entrypoint for both Claude and Codex worker sessions.
-- A higher-level UX wrapper such as `scripts/ai_worker` can be added later on top of it.
+- `ai_worker` is a thin convenience wrapper that derives task id and docs revision for a spec-driven launch.
 - Review and adjust the generic docs before publishing as your own canonical contract.
 
 ## What You Still Need To Add
@@ -157,5 +166,5 @@ This repository gives you the runtime core, not the final team-specific product.
 You will usually still want to add:
 - your own canonical docs and approval flow for `docs_revision`
 - your own workspace routing and task naming conventions
-- a higher-level UX wrapper if you want shorter worker-launch commands
+- any additional team-specific UX wrapper or aliases beyond `scripts/ai_worker`
 - your own trigger maps, fixtures, and workspace-specific policy layers

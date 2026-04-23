@@ -9,7 +9,7 @@ bounded resume, task identity, task-bound worker launch에 집중한 작고 audi
 이 저장소는 바로 꽂아 쓰는 완제품이라기보다, 다른 워크스페이스에 이식해서 쓰는 portable reference harness에 가깝습니다.
 포함된 문서, 라우팅, worker wrapper는 각자의 canonical workspace contract에 맞게 조정하는 것을 전제로 합니다.
 
-공개 launch/resume 계약은 `docs/public-contract.md`에서 봐야 합니다.
+공개 launch/resume 계약은 `docs/public-contract.md`에서, 한국어 설명은 `docs/public-contract.ko.md`에서 볼 수 있습니다.
 
 ## 왜 만들었나
 
@@ -96,6 +96,14 @@ bounded resume, task identity, task-bound worker launch에 집중한 작고 audi
 
 ## 빠른 시작
 
+얇은 ergonomic wrapper:
+
+```bash
+scripts/ai_worker codex docs/specs/task-spec.md -- --model gpt-5.4
+```
+
+저수준 binding-first wrapper:
+
 헤드 세션 이어가기:
 
 헤드 세션은 planning, review, routing 같은 판단 작업에 씁니다.
@@ -131,6 +139,7 @@ Claude worker session:
 ## 포함된 것
 
 - `tools/harness/`
+- `scripts/ai_worker`
 - `scripts/start_worker_session`
 - `docs/public-contract.md`
 - `.claude/skills/worker-launch/SKILL.md`
@@ -146,7 +155,7 @@ Claude worker session:
 ## 메모
 
 - `start_worker_session`은 Claude와 Codex worker session을 위한 저수준 safe entrypoint입니다.
-- 나중에 `scripts/ai_worker` 같은 상위 UX wrapper를 그 위에 추가할 수 있습니다.
+- `ai_worker`는 spec 기반 launch에서 task id와 docs revision을 자동으로 채워 주는 얇은 convenience wrapper입니다.
 - 자신의 canonical contract로 공개하려면 generic docs를 검토하고 조정하는 것이 좋습니다.
 
 ## 아직 직접 추가해야 하는 것
@@ -156,5 +165,5 @@ Claude worker session:
 보통은 여전히 아래를 직접 얹어야 합니다.
 - `docs_revision` 승인 흐름과 canonical docs
 - workspace 라우팅 규칙과 task naming convention
-- 더 짧은 worker launch 명령을 원할 때의 상위 UX wrapper
+- `scripts/ai_worker` 위에 추가로 둘 팀 전용 UX wrapper나 alias
 - trigger map, fixture, workspace 전용 policy layer

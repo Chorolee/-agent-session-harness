@@ -1,5 +1,7 @@
 # Public Contract
 
+Language: English | [한국어](public-contract.ko.md)
+
 This document describes the external contract for the portable harness.
 
 It is intentionally narrower than the internal implementation notes in `docs/ops/`.
