@@ -2,6 +2,18 @@
 
 Portable session harness for `claude` and `codex`.
 
+## Why This Exists
+
+Most agent workflows have two failure modes:
+- a head session leaves useful context, but that context is too loose to trust as executable continuity
+- worker sessions get resumed from "latest project state" guesses instead of from a validated task binding
+
+This harness exists to keep those two paths separate:
+- head sessions can stay thin and conversational
+- task-bound worker sessions can require stronger proof before they are treated as executable resume state
+
+The goal is not to fully automate agent orchestration. The goal is to make resume and worker launch safer, more explicit, and easier to inspect.
+
 What it does:
 - records hook/journal metadata
 - keeps resume state bounded and metadata-first
@@ -22,15 +34,37 @@ The runtime code supports both vendor CLIs:
 The included `.claude/skills/worker-launch/SKILL.md` is only an optional Claude adapter.
 The runtime itself is not Claude-only: Codex uses the same Python and shell entrypoints directly.
 
+## What Is Automatic
+
+Automatic once the harness is installed:
+- hook events can be normalized and appended to the journal
+- resume state stays bounded and metadata-first
+- `start_worker_session` fixes `--session-cwd` from the caller cwd
+- `start_worker_session` chooses the canonical handoff store automatically
+- cross-checkout `--worker-cwd` is rejected instead of guessed
+
+Still explicit or manual by design:
+- choosing when to continue in the head session vs launch a new worker
+- choosing the task id for a task-bound worker session
+- approving `--docs-revision`
+- choosing the `--doc-basis-path` inputs that define the worker's document basis
+- adding a higher-level UX wrapper such as `scripts/ai_worker`
+
+In short:
+- head session continuation is lightweight
+- executable worker continuity is stricter and intentionally not "magic"
+
 ## Quick Start
 
-Head session:
+Head session continuation:
 
 ```bash
-claude / codex
+claude
+# or
+codex
 ```
 
-Task-bound worker session:
+Task-bound worker session via the binding-first wrapper:
 
 ```bash
 "$(git rev-parse --show-toplevel)/scripts/start_worker_session" codex task-slug \
