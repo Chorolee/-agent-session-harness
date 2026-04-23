@@ -54,6 +54,16 @@ In short:
 - head session continuation is lightweight
 - executable worker continuity is stricter and intentionally not "magic"
 
+## Operational Benefits
+
+Besides safer worker launch, the harness makes agent runs easier to operate and inspect:
+- sessions are easier to trace across head and worker boundaries
+- resume decisions are tied to explicit task and session identity instead of loose "latest project state" guesses
+- document basis stays grouped with the worker launch, which makes review and audit trails clearer
+- worktree and cwd mistakes are reduced because the launcher rejects unsafe cross-checkout assumptions
+- the same runtime model works for both `claude` and `codex`, so the policy is not locked to one vendor CLI
+- head sessions can stay conversational while worker sessions carry stricter execution proof
+
 ## Quick Start
 
 Head session continuation:
