@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-session-harness"
-version = "0.1.0b1"
+version = "0.1.0b3"
 description = "Portable hook/journal and binding-first worker launcher for Claude and Codex."
 requires-python = ">=3.11"
 dependencies = []
@@ -12,5 +12,10 @@ dependencies = []
 [project.optional-dependencies]
 yaml = ["PyYAML>=6.0"]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tools*"]
+namespaces = true
+
 [tool.pytest.ini_options]
-testpaths = []
+testpaths = ["tests"]

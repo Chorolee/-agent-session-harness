@@ -4,6 +4,9 @@ __pycache__/
 .coverage
 *.pyc
 *.pyo
+*.egg-info/
+build/
+dist/
 .venv/
 venv/
 .DS_Store

@@ -22,6 +22,47 @@ jobs:
       - name: Verify Python syntax
         run: python -m compileall -q tools/harness
 
+      - name: Run unit tests
+        run: python -m unittest discover -s tests
+
+      - name: Verify packaged wheel contents
+        run: |
+          tmpdir="$(mktemp -d)"
+          python -m pip wheel . --no-deps -w "$tmpdir"
+          python - "$tmpdir" <<'PY'
+          import pathlib
+          import sys
+          import zipfile
+
+          wheel = next(pathlib.Path(sys.argv[1]).glob("*.whl"))
+          with zipfile.ZipFile(wheel) as zf:
+              names = set(zf.namelist())
+          required = {
+              "tools/harness/agent_session.py",
+              "tools/harness/session_identity.py",
+              "tools/harness/session_launcher.py",
+          }
+          missing = sorted(required - names)
+          if missing:
+              raise SystemExit(f"wheel is missing runtime files: {missing}")
+          PY
+
+      - name: Verify POSIX script line endings
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          paths = [
+              Path("scripts/start_worker_session"),
+              Path("scripts/ai_worker"),
+              Path("scripts/bootstrap_consumer"),
+              Path(".githooks/pre-commit"),
+          ]
+          bad = [str(path) for path in paths if b"\r\n" in path.read_bytes()]
+          if bad:
+              raise SystemExit(f"CRLF line endings are not allowed: {bad}")
+          PY
+
       - name: Verify launcher help
         run: |
           scripts/start_worker_session --help

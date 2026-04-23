@@ -4,6 +4,17 @@ All notable changes to this repository will be documented in this file.
 
 The public release tags are the source of truth for runtime milestones.
 
+## [0.1.0-beta3] - 2026-04-24
+
+### Fixed
+- included `tools/harness` runtime modules in setuptools wheel builds
+- enforced LF line endings for POSIX shell entrypoints and runtime sources
+- documented the current POSIX/WSL runtime compatibility boundary
+
+### Added
+- unit coverage for doc-basis revision hashing and repo-bound doc-basis paths
+- CI checks for wheel contents and POSIX script line endings
+
 ## [0.1.0-beta2] - 2026-04-24
 
 ### Fixed

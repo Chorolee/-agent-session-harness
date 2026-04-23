@@ -43,6 +43,8 @@ It is the current support contract for the runtime model exposed by this reposit
 
 Current public beta assumptions:
 - runtime supports both `claude` and `codex`
+- runtime execution is POSIX-oriented: Linux, macOS, and WSL are supported targets
+- native Windows execution is not part of the current beta contract because the launcher uses Bash/POSIX process and file-locking primitives
 - the ergonomic wrapper is `scripts/ai_worker`
 - the lower-level binding-first launcher is `scripts/start_worker_session`
 - `scripts/bootstrap_consumer --copy-runtime` is the minimum supported bootstrap path
