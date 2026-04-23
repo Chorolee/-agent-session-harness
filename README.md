@@ -1,5 +1,7 @@
 # agent-session-harness
 
+Language: English | [한국어](README.ko.md)
+
 Portable session harness for `claude` and `codex`.
 
 ## Why This Exists
