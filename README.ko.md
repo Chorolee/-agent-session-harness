@@ -65,6 +65,7 @@
 ## 운영상 장점
 
 단순히 worker launch를 더 안전하게 만드는 것 외에도, 이 하네스는 에이전트 실행을 더 운영하기 쉽게 만듭니다.
+- session id, task identity, worker lineage가 느슨한 대화 기록에 흩어지지 않고 inspectable metadata로 함께 남습니다.
 - head와 worker 경계를 넘나드는 session trace가 쉬움
 - resume 판단이 느슨한 "최근 프로젝트 상태" 추측이 아니라 명시적 task/session identity에 묶임
 - document basis가 worker launch와 함께 남아서 review와 audit trail이 더 명확해짐

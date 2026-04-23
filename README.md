@@ -66,6 +66,7 @@ In short:
 ## Operational Benefits
 
 Besides safer worker launch, the harness makes agent runs easier to operate and inspect:
+- session ids, task identity, and worker lineage stay grouped in inspectable metadata instead of being scattered across loose chat history
 - sessions are easier to trace across head and worker boundaries
 - resume decisions are tied to explicit task and session identity instead of loose "latest project state" guesses
 - document basis stays grouped with the worker launch, which makes review and audit trails clearer
