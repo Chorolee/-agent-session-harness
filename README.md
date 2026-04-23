@@ -2,14 +2,19 @@
 
 Language: English | [한국어](README.ko.md)
 
-Portable session harness for `claude` and `codex`.
+Binding-first session runtime for safe worker continuity in Claude/Codex workflows.
+
+A small, auditable reference harness for bounded resume, task identity, and task-bound worker launch.
 
 This repository is a portable reference harness, not a drop-in finished product.
 Adapt the included docs, routes, and worker wrappers to your own canonical workspace contract.
 
 ## Why This Exists
 
-Most agent workflows have two failure modes:
+Most agent workflows are good at carrying forward conversation, but weak at proving executable continuity.
+This harness treats worker resume as something stricter than transcript replay.
+
+Common failure modes include:
 - a head session leaves useful context, but that context is too loose to trust as executable continuity
 - worker sessions get resumed from "latest project state" guesses instead of from a validated task binding
 
@@ -33,6 +38,20 @@ This export is intentionally genericized for publishing:
 - workspace-specific project names were removed from the top-level docs
 - minimal canonical docs are included so the launcher can validate doc basis
 - monorepo-specific tests and trigger maps were excluded
+
+## Why This Is Different
+
+This repository is not trying to be an all-in-one agent platform.
+
+Its focus is narrower:
+- bounded, metadata-first resume instead of transcript-heavy replay
+- binding-first worker launch instead of loose "latest project state" guessing
+- explicit task identity, session lineage, and document basis tracking
+- a small, auditable runtime core that works across both `claude` and `codex`
+
+In short:
+- thin sessions are cheap
+- executable worker continuity is explicit, validated, and bounded
 
 ## Supports Both Claude And Codex
 

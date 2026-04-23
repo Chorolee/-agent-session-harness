@@ -2,14 +2,19 @@
 
 언어: [English](README.md) | 한국어
 
-`claude`와 `codex`를 위한 portable session harness입니다.
+Claude/Codex 워크플로에서 안전한 worker continuity를 위한 binding-first session runtime입니다.
+
+bounded resume, task identity, task-bound worker launch에 집중한 작고 audit-friendly한 reference harness입니다.
 
 이 저장소는 바로 꽂아 쓰는 완제품이라기보다, 다른 워크스페이스에 이식해서 쓰는 portable reference harness에 가깝습니다.
 포함된 문서, 라우팅, worker wrapper는 각자의 canonical workspace contract에 맞게 조정하는 것을 전제로 합니다.
 
 ## 왜 만들었나
 
-대부분의 에이전트 워크플로에는 두 가지 흔한 문제가 있습니다.
+대부분의 에이전트 워크플로는 대화를 이어 붙이는 데는 강하지만, executable continuity를 증명하는 데는 약합니다.
+이 하네스는 worker resume를 단순 transcript replay보다 더 엄격하게 다룹니다.
+
+대표적인 실패 경로는 이렇습니다.
 - 헤드 세션이 유용한 문맥은 남기지만, 그 문맥만으로 executable continuity를 신뢰하기는 어렵습니다.
 - worker 세션이 검증된 task binding이 아니라 "현재 프로젝트에서 가장 최근 상태" 추측으로 이어지기 쉽습니다.
 
@@ -33,6 +38,20 @@
 - workspace 고유 프로젝트 이름은 top-level 문서에서 제거
 - launcher가 doc basis를 검증할 수 있도록 최소 canonical docs 포함
 - monorepo 전용 테스트와 trigger map은 제외
+
+## 무엇이 다른가
+
+이 저장소는 올인원 agent platform을 지향하지 않습니다.
+
+대신 더 좁고 깊은 축에 집중합니다.
+- transcript를 무겁게 다시 읽는 대신 bounded, metadata-first resume
+- 느슨한 "최근 프로젝트 상태" 추측 대신 binding-first worker launch
+- explicit task identity, session lineage, document basis 추적
+- `claude`와 `codex` 둘 다에 적용 가능한 작고 audit-friendly한 runtime core
+
+요약하면:
+- thin session은 가볍게
+- executable worker continuity는 명시적이고, 검증 가능하고, bounded하게
 
 ## Claude와 Codex 둘 다 지원
 
